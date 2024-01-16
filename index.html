@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Flashcards Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url(background.jpg); /* Replace 'your-image-url.jpg' with the actual URL or path of your background image */
+            background-size: cover;
+            background-position: center;
+            background-color: #f4f4f4;
+        }
+        #quiz-container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #topic-selection {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        #instructions {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        #timer {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #e74c3c;
+        }
+        #question {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .option {
+            padding: 10px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .option:hover {
+            background-color: #3498db;
+            color: #fff;
+        }
+        #score {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        #feedback {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        #next-btn {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <div id="topic-selection"></div>
+        <div id="instructions"></div>
+        <div id="timer">Time Remaining: <span id="time">10</span> seconds</div>
+        <div id="question"></div>
+        <div id="options-container"></div>
+        <div id="feedback"></div>
+        <div id="score">Score: 0</div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <script>
+        const topics = [
+            "Basic Concepts in Statistics",
+            "Statistics Uses in Different Fields",
+            "Descriptive vs Inferential Statistics",
+            "Qualitative Data vs Quantitative Data",
+            "Basic Terms in Statistics",
+            "Classification of Variables",
+            "Quantitative Variables",
+            "Independent vs Dependent Variables"
+        ];
+
+        let selectedTopic = "";
+        let quizData = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let timer;
+
+        const topicSelectionElement = document.getElementById("topic-selection");
+        const instructionsElement = document.getElementById("instructions");
+        const questionElement = document.getElementById("question");
+        const optionsContainer = document.getElementById("options-container");
+        const scoreElement = document.getElementById("score");
+        const feedbackElement = document.getElementById("feedback");
+        const timeElement = document.getElementById("time");
+        const nextButton = document.getElementById("next-btn");
+
+        function startQuiz() {
+            showTopicSelection();
+        }
+
+        function showTopicSelection() {
+            topicSelectionElement.innerHTML = "Select a topic:";
+            topics.forEach((topic) => {
+                const topicButton = document.createElement("button");
+                topicButton.textContent = topic;
+                topicButton.addEventListener("click", () => {
+                    selectedTopic = topic;
+                    showInstructions();
+                });
+                topicSelectionElement.appendChild(topicButton);
+            });
+        }
+
+        function showInstructions() {
+            topicSelectionElement.style.display = "none";
+            instructionsElement.innerHTML = `<p>Instructions:</p>
+                                            <ul>
+                                                <li>You will be asked 8 questions related to ${selectedTopic}.</li>
+                                                <li>Each question has a 10-second timer.</li>
+                                                <li>Select the correct answer from the options.</li>
+                                                <li>Your score will be displayed at the end of the quiz.</li>
+                                            </ul>`;
+            nextButton.style.display = "block";
+            generateQuizData();
+            showQuestion();
+            startTimer();
+        }
+
+        function generateQuizData() {
+            // Generate quiz data based on the selected topic
+            quizData = [
+                // Basic Concepts in Statistics
+                {
+                    question: "What is the fundamental difference between population and sample in statistics?",
+                    options: [
+                        "Population refers to a small subset of a larger group, while sample includes the entire group.",
+                        "Population includes all individuals or items of interest, while sample is a subset of the population."
+                    ],
+                    correct: "Population includes all individuals or items of interest, while sample is a subset of the population."
+                },
+                // Statistics Uses in Different Fields
+                {
+                    question: "In which field is statistics commonly used for data analysis?",
+                    options: [
+                        "Astronomy",
+                        "Biology",
+                        "Economics",
+                        "All of the above"
+                    ],
+                    correct: "All of the above"
+                },
+                // Descriptive vs Inferential Statistics
+                {
+                    question: "What is the main purpose of descriptive statistics?",
+                    options: [
+                        "To draw conclusions about a population based on a sample.",
+                        "To summarize and describe the main features of a dataset."
+                    ],
+                    correct: "To summarize and describe the main features of a dataset."
+                },
+                // Qualitative Data vs Quantitative Data
+                {
+                    question: "Which of the following is an example of qualitative data?",
+                    options: [
+                        "Height of a person",
+                        "Number of cars in a parking lot",
+                        "Color of a flower"
+                    ],
+                    correct: "Color of a flower"
+                },
+                // Basic Terms in Statistics
+                {
+                    question: "What is the term for the measure of central tendency that represents the middle value of a dataset?",
+                    options: [
+                        "Mean",
+                        "Median",
+                        "Mode"
+                    ],
+                    correct: "Median"
+                },
+                // Classification of Variables
+                {
+                    question: "In statistics, what is a categorical variable?",
+                    options: [
+                        "A variable that represents numerical values.",
+                        "A variable that represents categories or groups."
+                    ],
+                    correct: "A variable that represents categories or groups."
+                },
+                // Quantitative Variables
+                {
+                    question: "Which of the following is an example of a quantitative variable?",
+                    options: [
+                        "Gender",
+                        "Temperature in Celsius",
+                        "Hair color"
+                    ],
+                    correct: "Temperature in Celsius"
+                },
+                // Independent vs Dependent Variables
+                {
+                    question: "In a scientific experiment, what is the role of the independent variable?",
+                    options: [
+                        "It is manipulated to observe its effect on the dependent variable.",
+                        "It depends on the outcome of the experiment."
+                    ],
+                    correct: "It is manipulated to observe its effect on the dependent variable."
+                },
+                // Add more questions as needed...
+            ];
+        }
+
+        function showQuestion() {
+            resetTimer();
+            const currentQuizData = quizData[currentQuestion];
+            questionElement.textContent = currentQuizData.question;
+            optionsContainer.innerHTML = "";
+
+            currentQuizData.options.forEach((option, index) => {
+                const optionElement = document.createElement("div");
+                optionElement.className = "option";
+                optionElement.textContent = option;
+                optionElement.addEventListener("click", () => checkAnswer(index));
+                optionsContainer.appendChild(optionElement);
+            });
+        }
+
+        function checkAnswer(index) {
+            clearInterval(timer);
+            const currentQuizData = quizData[currentQuestion];
+            const selectedOption = currentQuizData.options[index];
+
+            if (selectedOption === currentQuizData.correct) {
+                score++;
+                feedbackElement.textContent = "Correct!";
+                feedbackElement.style.color = "#2ecc71";
+            } else {
+                feedbackElement.textContent = `Incorrect! The correct answer is ${currentQuizData.correct}.`;
+                feedbackElement.style.color = "#e74c3c";
+            }
+
+            scoreElement.textContent = `Score: ${score}`;
+            feedbackElement.style.display = "block";
+
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                setTimeout(() => {
+                    showQuestion();
+                    startTimer();
+                    resetFeedback();
+                }, 2000);
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            questionElement.textContent = "Quiz completed!";
+            optionsContainer.innerHTML = "";
+            scoreElement.textContent = `Your Score: ${score} / ${quizData.length}`;
+            clearInterval(timer);
+            nextButton.style.display = "none";
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length) {
+                showQuestion();
+                resetFeedback();
+                startTimer();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function startTimer() {
+            let time = 20;
+            timeElement.textContent = time;
+            timer = setInterval(() => {
+                time--;
+                timeElement.textContent = time;
+
+                if (time === 0) {
+                    clearInterval(timer);
+                    checkAnswer(-1); // No option selected, treat as incorrect
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timeElement.textContent = "20";
+        }
+
+        function resetFeedback() {
+            feedbackElement.textContent = "";
+            feedbackElement.style.display = "none";
+        }
+
+        // Start the quiz when the page loads
+        startQuiz();
+    </script>
+</body>
+</html>
